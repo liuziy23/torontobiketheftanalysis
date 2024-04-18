@@ -1,0 +1,288 @@
+---
+title: "Analyzing the Impact of Location and Time on High-Value Bicycle Thefts in Toronto."
+subtitle: "Revealing Seasonal Trends, Hotspots, and Predictive Factors."
+author: "Ziyi Liu"
+date: "`r Sys.time()`"
+date-format: "D MMMM YYYY"
+abstract: "Bicycle theft poses a significant challenge in urban environments, impacting both individuals and communities. Understanding the complex dynamics of bicycle theft patterns and risk factors is crucial for developing effective prevention strategies. In this project, we analyze bicycle theft data from the Toronto Police Service, focusing on temporal trends, spatial patterns, and socio-economic factors influencing theft occurrences. Utilizing statistical techniques such as logistic regression and machine learning algorithms, we identify key predictors of theft likelihood, including theft location, bike characteristics, and temporal factors. Our findings reveal distinct seasonal variations and hourly patterns in theft occurrences, highlighting the importance of tailored prevention measures. Additionally, we investigate the socio-economic and environmental factors contributing to thefts, providing insights for holistic prevention strategies. By combining quantitative analysis with qualitative insights, this project aims to inform evidence-based policies and interventions to reduce bicycle theft and enhance urban security."
+format:
+  html
+number-sections: true
+bibliography: references.bib
+---
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+# SET UP WORKSPACE
+library(tidyverse)
+library(knitr)
+library(here)
+library(modelsummary)
+library(gridExtra)
+library(car)
+library(pROC)
+```
+
+```{r}
+#| include: false
+
+# IMPORT PROCESSED DATA FROM OUTPUTS FOLDER 
+# imported via 00-data_cleaning.R file
+
+data <- read.csv(here::here("outputs/data/cleaned_data.csv"))
+
+```
+
+# Introduction
+
+In advancing our understanding of urban bicycle theft, this study endeavors to meticulously examine how the theft location—public versus private spaces—affects the likelihood of high-value bicycles being targeted. This effort is differentiated from existing research by its comprehensive consideration of various factors such as the time of day, the brand and color of the bike, and seasonal variations. This approach is not only driven by a commitment to community safety and the promotion of cycling but also by the need to uncover specific patterns and contexts of bicycle theft that remain underexplored in the literature [@mburu2016environmental].
+
+Central to this study is the hypothesis that the interplay between the location of theft and these nuanced variables significantly influences theft outcomes. Unlike previous studies, which may have focused broadly on theft incidents or on singular aspects such as the effectiveness of prevention strategies or the impact of environmental factors, this research delves into the granular details of how and why certain bicycles are more likely to be stolen in specific settings [@levy2018case]. By integrating a mixed-method analysis that combines quantitative theft data with qualitative insights from cyclists and law enforcement, this study aims to provide a multidimensional view of bicycle theft dynamics.
+
+The selected variables—ranging from temporal factors like time and season to the intrinsic features of the bicycles such as brand popularity and color—were inspired by a gap identified in the literature [@salvanelli2019predicting]. These choices are aimed at enhancing the dataset to focus specifically on urban theft incidents, thus offering a richer, more detailed exploration than previously available. The outcomes of this research seek not only to add to the academic discourse by identifying new patterns and preventive measures but also to offer practical recommendations for urban planning and community efforts aimed at minimizing theft-related losses.
+
+By filling this critical research void, the findings of this study are anticipated to inform targeted interventions, enriching the strategies employed by urban planners and cycling advocates to safeguard bicycles. In doing so, this research stands as a pioneering effort to explore the multifaceted nature of urban bicycle theft, providing a solid foundation for future studies while contributing actionable insights toward the creation of safer, more bike-friendly urban environments.
+
+The structure of this paper is organized as follows: @sec-data introduces the data used for analysis, including visualizations of the variables of interest; @sec-model presents the logistic regression model combined with lasso used to explore the relationships between bicycle theft variables; @sec-results displays the interpretations of the model alongside other findings; and @sec-discussion provides a discussion on the implications of the findings, the limitations of this study, and its next steps for further research on this topic. 
+
+Programming scripts and data are available at: https://github.com/liuziy23/torontobiketheftanalysis.
+
+# Data {#sec-data}
+
+## Data Source {#sec-variables-of-interest}
+
+The data utilized in this study focuses on urban bicycle thefts, accessible through the open database provided by the Toronto Police Service, available at: Toronto Police Service - Bicycle Thefts [@citebiketheft]. The database contains detailed records of reported bicycle thefts in Toronto, covering various aspects including the time, location, type of premises, bike make, and color, among other factors. The open-source nature of this dataset allows for free public access, supporting research and community awareness efforts regarding bicycle theft.
+
+The primary entities of this dataset include the theft incident, which is characterized by specific details such as the type of bicycle, the circumstances of the theft, and the outcome if known. Additional elements captured in the dataset include the make and color of the bicycle, the location of the theft, and the date and time it occurred, along with identifiers for each unique incident.
+
+The data collection process involves reports typically filed by the victims of theft, complemented by police reports and possibly eyewitness accounts. The primary method of data accumulation is incident reporting, which, unlike convenience sampling, may not uniformly cover all demographic or geographic areas but provides real, specific case studies of theft. This method has the advantage of detailing actual events and conditions under which bicycle thefts occur, offering practical insights into patterns and preventive measures.
+
+Data from these reports is instrumental in understanding the dynamics of urban bicycle theft, particularly the effectiveness of various security measures and the impact of environmental factors on the likelihood of theft. These reports are crucial in providing comprehensive assessments of theft incidents during all times of the year, reflecting the ongoing challenge of securing bicycles in a major urban area. The dataset is enriched with details on the location and timing of thefts, which are critical for analyzing trends and developing strategies to mitigate these incidents in the community.
+
+The analysis presented in this paper utilizes the R programming language [@citeR] for performing statistical computations and data visualization. Essential packages from the tidyverse [@citetidyverse] are employed, including dplyr [@citedplyr] for data manipulation and cleaning, readr [@citereadr] for data importation, here [@citehere] for specifying file paths, ggplot2 [@citeggplot2] for generating data visualizations, gridExtra [@citegridExtra] for arranging visualizations, knitr [@citeknitr] for formatting output tables, and modelsummary [@citemodelsummary] for producing summary tables. Additionally, the glmnet package [@citeglmnet] is used for regularization techniques and model fitting, the car package [@citecar] provides advanced data handling and statistical tests to including assessing multicollinearity, and the pROC package [@citepROC] provides tools for calculating measures from logistic regression models.
+
+## Variables of Interest
+
+Our analysis specifically focuses on the incidence of bicycle thefts. In this paper, we utilize a dataset exclusively dedicated to bike thefts, which contains 32,874 observations, where each row corresponds to a reported theft incident and each column represents a distinct variable, such as demographic details or the circumstances surrounding the theft [@citebiketheft]. This dataset enables us to explore a variety of factors including the type of location where the theft occurred, the brand of the bicycle, the time and month of the theft, the color of the bicycle, and the value of the bicycle. It is noteworthy that the 32,874 records in our dataset cover a wide range of theft incidents, allowing for a comprehensive analysis of trends and patterns.
+
+Variables included in the analysis are:
+
+- Location Type: Main exposure variable, distinguishes theft location as public or private; included as a predictor.
+
+- Bike Make: Brand of bicycle, used to explore brand's impact on theft likelihood; included as a predictor.
+
+- Occurrence Hour: Time of theft, used to identify high-risk hours; included as a predictor.
+
+- Occurrence Month: Month of theft, used to analyze seasonal theft patterns; included as a predictor.
+
+- Bike Colour: Assesses if color influences theft risk; included as a predictor.
+
+- Bike Value: Binary response variable; categorized as high value (over $1000) or not.
+
+\newpage
+
+```{r}
+#| label: fig-1
+#| fig-cap: Distribution of location type, hour of the day, bike colour, and bike value.
+#| echo: false
+#| warning: false
+
+# Individual plots for each variable
+p1 <- ggplot(data, aes(x = location)) +
+  geom_bar() +
+  labs(title = "Figure 1.", 
+       subtitle = "Distribution of Theft Locations", x = "Location Type", y = "Count") + theme_minimal()
+
+p2 <- ggplot(data, aes(x = BIKE_MAKE)) +
+  geom_bar() +
+  labs(title = "Figure 2.", 
+       subtitle = "Distribution of Bike Makes", x = "Bike Make", y = "Count") +  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+p3 <- ggplot(data, aes(x = OCC_HOUR)) +
+  geom_bar() +
+  labs(subtitle = "Distribution of Theft Hours", x = "Hour of the Day", y = "Count") + theme_minimal()
+
+p4 <- ggplot(data, aes(x = OCC_MONTH)) +
+  geom_bar() +
+  labs(subtitle = "Distribution of Theft Months", x = "Month", y = "Count") + theme_minimal() + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p5 <- ggplot(data, aes(x = BIKE_COLOUR)) +
+  geom_bar() +
+  labs(subtitle = "Distribution of Bike Colours", x = "Bike Colour", y = "Count")+ theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+p6 <- ggplot(data, aes(x = value)) +
+  geom_bar() +
+  labs(subtitle = "Distribution of Bike Values", x = "Bike Value", y = "Count") + theme_minimal()
+
+# Combining plots with grid.arrange
+grid.arrange(p1, p3, p5, p6, ncol = 2)
+```
+
+```{r}
+#| label: fig-2
+#| fig-cap: Distribution of bike make and theft-occurrence month.
+#| echo: false
+#| warning: false
+
+grid.arrange(p2, p4, ncol = 2)
+
+```
+
+In this paper, we present detailed visualizations of the distributions of the variables under study, specifically in @fig-1 and @fig-2. These figures are instrumental in highlighting the diverse structures and forms that characterize each variable's distribution. @fig-1 focuses on the distribution of theft occurrences by time of day and month, revealing potential patterns that suggest higher theft risks during specific hours and seasonal peaks. For instance, the visualization may show increased thefts during late evening hours and in warmer months, indicating a need for heightened security measures during these times. @fig-2, on the other hand, examines the distributions of the bike's make, color, and value. This figure provides insights into which bicycle brands are more frequently targeted by thieves, which colors are most susceptible to theft, and the prevalence of high-value bicycles in theft incidents. For example, a concentration of thefts involving high-value bikes in certain colors could suggest specific market preferences among thieves.
+
+These visualizations not only aid in understanding the raw data but also serve as a foundation for the subsequent statistical modeling phase. The varied structures observed in the data distributions—ranging from skewed distributions for bike values to categorical distinctions in bike make and color—will be carefully accounted for in our modeling strategies. These efforts are aimed at developing a comprehensive understanding of the factors influencing bicycle theft, which in turn can inform targeted interventions to reduce such incidents. By meticulously analyzing the distribution and influence of each variable, we enhance the predictive power of our models, thereby contributing valuable insights into effective theft prevention strategies.
+
+\newpage
+
+Understanding when bike thefts occur helps target prevention efforts. Seasonal and hourly trends indicate times of higher theft risk, guiding strategic security planning and resource allocation.
+
+```{r}
+#| label: tbl-month
+#| tbl-cap: Summary statistics table of occurrence month.
+#| echo: false
+
+# Summarize categorical variable 'OCC_MONTH' for frequency and percentage
+categorical_summary <- data %>%
+  group_by(OCC_MONTH) %>%
+  summarise(
+    Frequency = n(),
+    Percentage = round((n() / nrow(data) * 100),2)
+  ) %>%
+  ungroup() %>%
+  arrange(desc(Frequency))
+
+# Print categorical summaries
+kable(categorical_summary)
+```
+
+The categorical summary of bike theft occurrences across various months, as presented in @tbl-month The table captures 32,874 instances of reported bike thefts, with each month revealing a distinct pattern of frequency. Notably, July stands out as the month with the highest theft incidents, constituting approximately 15.52% of the total cases. This is closely followed by August and June, with 14.38% and 13.44% respectively, indicating a trend of increased thefts during the summer months. Conversely, the winter months—specifically February and January—show a marked decrease in theft frequency, accounting for only 2.53% and 2.73% of the incidents. Within the table, the 'Frequency' column enumerates the actual count of thefts per month, while the 'Percentage' column elucidates the proportion of total thefts that occurred in each month. This distribution highlights a clear seasonal pattern, with more than 40 percent of thefts taking place during the warmer months of July through September, and the fewest thefts occurring in the cold of December through February.
+
+\newpage
+
+```{r}
+#| label: tbl-hour
+#| tbl-cap: Summary statistics table of occurrence hour
+#| echo: false
+
+# Summarize categorical variable 'OCC_HOUR' for frequency and percentage
+categorical_summary_hour <- data %>%
+  group_by(OCC_HOUR) %>%
+  summarise(
+    Frequency = n(),
+    Percentage = round((n() / nrow(data) * 100), 2)
+  ) %>%
+  ungroup() %>%
+  arrange(desc(Frequency))
+
+# Print categorical summaries
+kable(categorical_summary_hour)
+```
+
+The comprehensive summary of bike theft occurrences delineated by hour, as depicted in @tbl-hour, outlines the frequency and percentage of thefts at various times throughout a 24-hour period, based on 32,874 reported incidents. The hour with the highest frequency of thefts is 18:00 (or 6 PM), representing 7.05% of total incidents, suggesting an elevated risk of theft during early evening hours. This is followed by hours 17:00 (6.49%) and 12:00 (6.01%), indicative of heightened theft activity in late afternoon and midday, respectively. In stark contrast, the early hours of the morning—specifically 01:00 and 05:00—show significantly fewer occurrences, with the lowest being at 5 AM, constituting only 0.11% of thefts. The 'Frequency' column in the table provides the precise count of thefts at each hour, while the 'Percentage' column offers insight into the share of total thefts happening at each corresponding hour. The data elucidates a pronounced pattern of theft risk that peaks during evening hours and diminishes substantially in the early morning, demonstrating the temporal trends in bicycle theft incidents.
+
+# Model {#sec-model}
+
+```{r}
+#| include: false
+
+# IMPORT MODEL FROM OUTPUTS FOLDER
+logit_model <- readRDS(here::here("outputs/models/logit_model.rds"))
+
+```
+
+## Model Methods - Variable Selection
+
+In our study to discern the determinants of high-value bicycle theft, we utilize a methodological framework that combines Lasso logistic regression with cross-validation. Logistic regression is particularly suited for our study as it excels in modeling binary outcomes—such as classifying bicycle theft incidents as high-value or not. Its ability to provide probabilities along with odds ratios for the occurrence of an event based on various predictors makes it a useful tool in understanding the likelihood of high-value thefts. This approach allows us to directly link the characteristics of bicycles and their environment to the risk of being targeted by thieves, offering insights that are both statistically significant and practically interpretable.
+
+The inclusion of Lasso (Least Absolute Shrinkage and Selection Operator) in the logistic regression model addresses the critical need for variable selection in the presence of potentially numerous predictors. Urban crime data often come with the challenge of high dimensionality—many variables like time, location, bike brand, and seasonality could potentially influence theft risk. Lasso aids in simplifying this complexity by penalizing the less significant variables' coefficients, effectively shrinking them to zero. This not only helps in identifying the most impactful predictors but also in mitigating the risk of overfitting, thereby enhancing the model's predictive accuracy and interpretability.
+
+Conclusions are derived from the logistic regression analysis post-Lasso variable selection, focusing on the retained variables and their odds ratios. These odds ratios quantify the strength and direction of the association between each predictor and the likelihood of a bicycle theft being high-value. The statistical significance of these associations, along with their practical implications, guides our understanding of high-value bicycle theft dynamics. 
+
+# Model Methods - Model Diagnostics and Validation
+
+Model diagnostics comprises assessing the Variance Inflation Factor (VIF) and the Receiver Operating Characteristic (ROC) curve with the Area Under the Curve (AUC) metric. Post-Lasso variable selection, VIF is used to detect multicollinearity among predictors. A VIF above 5 indicates problematic multicollinearity, potentially distorting the model's coefficients. Addressing this might involve dropping correlated predictors to improve model stability and interpretability. The ROC curve, plotted by comparing true positive rates against false positive rates at various thresholds, alongside the AUC metric (area under the ROC curve), evaluates the model's ability to distinguish between binary outcomes effectively. An AUC close to 1 signifies excellent model performance, while values near 0.5 suggest no predictive benefit over random chance. An AUC over 0.6 will be deemed as adequately well model performance. These diagnostics ensure our model's robustness by mitigating multicollinearity and verifying its predictive accuracy.
+
+Model validation is conducted via cross-validation. Cross-validation is integral to our methodology, serving the dual purpose of validation and optimization. By partitioning the data into numerous sets and iteratively using each set as a validation while training on the others, we ascertain the model's performance across different subsets of data. This process is key to determining the optimal lambda $\lambda$, the regularization parameter in Lasso that influences the degree of shrinkage applied to the coefficients. The optimal lambda is the one that minimizes the cross-validated error, striking a balance between the model's complexity and its ability to generalize to new data.
+
+\newpage
+
+# Results {#sec-results}
+
+```{r}
+#| label: tbl-modelsum
+#| tbl-cap: Model summary of the fitted logistic regression model (Model 1) on bicycle theft being of high value.
+#| echo: false
+
+modelsummary(logit_model)
+```
+
+The final model, referred as Model 1, is then a logistic regression model with bike theft being high value or not as the response variable and predictors being bike make, bike color, and location of theft. @tbl-modelsum showcases the coefficients of the predictor variables of Model 1. We focus on the upper section of this table, which includes the intercept coefficient and the coefficient representing the log odds of a stolen bike being of high value, and examines how they vary with different predictors. The standard errors of the estimated regression coefficients are displayed in brackets for reference.
+
+We see location of theft, make of bike and colour of bike are statistically significant at 5%. Significant coefficients greater than 0 indicates being associated with more likely to be stolen while less than 0 is associated with less likely to be stolen. Bikes parked outside are less likely to be stolen. All bike makes are less likely to be stolen than bike make of "CA", except for "specialized" makes which are more likely to be stolen than "CA" bikes. All bike colours are less likely to be stolen than black bikes, except for white bikes which are equally likely to be stolen than black bikes.
+
+```{r}
+#| label: fig-roc
+#| fig-cap: ROC and AUC of the fitted logistic regression model on bicycle theft being of high value.
+#| echo: false
+#| warning: false
+
+library(pROC)
+predicted_probs <- predict(logit_model, type = "response")
+roc_obj <- roc(data$value, predicted_probs)
+plot(roc_obj, main = "Figure 3. ROC Curve", col = "#1c61b6", lwd = 2)
+abline(a = 0, b = 1, lty = 2, col = "gray")
+text(0.6, 0.2, paste("AUC =", round(auc(roc_obj), 3)), col = "#1c61b6")
+```
+
+@fig-roc shows the ROC curve and the AUC. The AUC is 0.647, which means the model has adequate prediction accuracy. 
+
+```{r}
+#| label: tbl-vif
+#| tbl-cap: VIFs of the fitted logistic regression model (Model 1) on bicycle theft being of high value.
+#| echo: false
+
+b <- as.data.frame(vif(logit_model))
+b <- data.frame(Predictor = rownames(b),
+                VIF = as.numeric(b[,1]))
+kable(b, digits=2)
+```
+
+The predictors in the model all have a VIF less than 2 and being very close to 1, as shown in @tbl-vif, indicating lack of multicollinearity in the model. 
+
+\newpage
+
+# Discussion {#sec-discussion}
+
+## Understanding the complexities of bicycle theft reveals insights into theft patterns and risk factors {#sec-first-point}
+
+The final logistic regression model delves into the intricacies of factors influencing bicycle theft likelihood, particularly focusing on the value aspect—whether a bike is classified as high-value or not. Notably, the model highlights the significance of the theft location, with bikes parked outside showing a coefficient less than 0. This suggests that bicycles parked outside are less likely to be categorized as high-value thefts compared to those parked in unspecified default locations, potentially indicating more secure or private areas. Moreover, the analysis uncovers an intriguing insight regarding bike make, where all makes are generally less likely to be stolen than "CA" bikes, except for the "Specialized" brand, which stands out with a positive coefficient. This implies that "Specialized" bikes, renowned for their quality and potentially higher resale value, are more appealing to thieves, underscoring the impact of brand perception on theft risk. Similarly, the examination of bike color reveals that all colors, except white, are less likely to be associated with high-value thefts compared to black bikes. The equal likelihood of white bikes being stolen as black bikes may reflect a specific preference or market demand among thieves for these colors, possibly due to their visibility or resale value. Overall, the model unravels the intricate interplay between theft location, bike make, and bike color in determining the likelihood of a bicycle being a high-value theft target, emphasizing the crucial role of external factors in theft likelihood. This analysis directly addresses our research question by identifying specific characteristics that render a bicycle more susceptible to theft, advocating for tailored theft prevention strategies to mitigate high-value bicycle thefts.
+
+## Investigating the temporal trends of bicycle thefts provides actionable insights for theft prevention efforts {#sec-second-point}
+
+Analyzing the occurrence month and hour of bicycle thefts uncovers significant temporal patterns that inform strategic theft prevention measures. The analysis reveals distinct seasonal trends, with thefts peaking during summer months and diminishing during winter months. This seasonal variation highlights the importance of adapting theft prevention strategies to coincide with periods of heightened theft activity, such as increasing patrols and security measures during peak theft seasons. Additionally, examining theft occurrences by hour exposes specific times of day when thefts are most prevalent, guiding the allocation of resources for targeted surveillance and intervention. By understanding these temporal patterns, stakeholders can implement proactive measures to deter thefts effectively and enhance the security of bike owners and urban areas.
+
+## Understanding the socio-economic and environmental factors contributing to bicycle thefts informs holistic prevention strategies {#sec-third-point}
+
+Bicycle theft is influenced by a multitude of socio-economic and environmental factors, necessitating a comprehensive approach to theft prevention. Factors such as income inequality, access to secure parking facilities, and urban infrastructure play pivotal roles in theft occurrence. Targeted interventions addressing these underlying factors, such as improving bike parking infrastructure and implementing community policing initiatives in high-theft areas, can mitigate theft risk and enhance overall urban security. Moreover, public awareness campaigns and community engagement initiatives can foster a culture of collective responsibility and vigilance, encouraging active participation in theft prevention efforts. By addressing the root causes of bicycle thefts and promoting collaborative strategies, communities can create safer environments for cyclists and reduce the prevalence of bike thefts.
+
+## Limitations & Next Steps {#sec-limitations-next-steps}
+
+### Limitations {#sec-limitations}
+
+The final logistic regression model, while offering valuable insights into the determinants of high-value bicycle theft, is not without its limitations. A notable concern is the Area Under the Curve (AUC) of the Receiver Operating Characteristic (ROC) curve, which stands at 0.647. This metric, while indicating some ability of the model to distinguish between high-value and lower-value thefts, suggests moderate predictive accuracy. The AUC value, being substantially closer to 0.5 than to 1, implies that the model's capacity to correctly classify high-value thefts based on the predictors—bike make, bike color, and location of theft—is limited. This moderate AUC value potentially impacts the usefulness of the model in practical settings. For stakeholders, such as urban planners and law enforcement agencies, looking to deploy targeted interventions based on the model's predictions, there is a risk that the strategies might not be as effective as hoped in preventing high-value bicycle thefts. The model's moderate discriminative power could lead to misclassification of theft risks, affecting the allocation of resources and the design of prevention measures.
+
+Several factors contribute to the model's AUC limitation, which could not be entirely corrected within the scope of this analysis. First, the complexity of human behavior, especially in the context of theft, is challenging to capture fully through available data on bike make, color, and location alone. The interactions between these variables and unmeasured factors, such as the presence of security devices or surveillance, could significantly influence theft likelihood but are not accounted for in the model. Second, data quality and completeness could also play a role. Missing or inaccurately reported incidents of theft might skew the relationship between predictors and the response, affecting the model's accuracy.
+
+### Next Steps {#sec-next-steps}
+
+Despite these limitations, the model provides a foundation for understanding high-value bicycle theft's dynamics. It highlights significant risk factors that can inform preliminary guidelines for theft prevention. Future research could aim to enhance model accuracy by incorporating additional predictors, such as time of day or security measures, and employing more sophisticated modeling techniques that can better handle the complexities inherent in predicting theft incidents. This iterative approach, building on the current model's insights, promises to refine our understanding and strategies for mitigating high-value bicycle thefts.
+
+\newpage
+
+# References {#sec-references}

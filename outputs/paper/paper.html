@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ziyi Liu">
+<meta name="dcterms.date" content="2024-04-18">
+
+<title>Analyzing the Impact of Location and Time on High-Value Bicycle Thefts in Toronto.</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="paper_files/libs/clipboard/clipboard.min.js"></script>
+<script src="paper_files/libs/quarto-html/quarto.js"></script>
+<script src="paper_files/libs/quarto-html/popper.min.js"></script>
+<script src="paper_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="paper_files/libs/quarto-html/anchor.min.js"></script>
+<link href="paper_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="paper_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="paper_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="paper_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="paper_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Analyzing the Impact of Location and Time on High-Value Bicycle Thefts in Toronto.</h1>
+<p class="subtitle lead">Revealing Seasonal Trends, Hotspots, and Predictive Factors.</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ziyi Liu </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">18 April 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="abstract-title">Abstract</div>
+    Bicycle theft poses a significant challenge in urban environments, impacting both individuals and communities. Understanding the complex dynamics of bicycle theft patterns and risk factors is crucial for developing effective prevention strategies. In this project, we analyze bicycle theft data from the Toronto Police Service, focusing on temporal trends, spatial patterns, and socio-economic factors influencing theft occurrences. Utilizing statistical techniques such as logistic regression and machine learning algorithms, we identify key predictors of theft likelihood, including theft location, bike characteristics, and temporal factors. Our findings reveal distinct seasonal variations and hourly patterns in theft occurrences, highlighting the importance of tailored prevention measures. Additionally, we investigate the socio-economic and environmental factors contributing to thefts, providing insights for holistic prevention strategies. By combining quantitative analysis with qualitative insights, this project aims to inform evidence-based policies and interventions to reduce bicycle theft and enhance urban security.
+  </div>
+</div>
+
+</header>
+
+<section id="introduction" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Introduction</h1>
+<p>In advancing our understanding of urban bicycle theft, this study endeavors to meticulously examine how the theft location—public versus private spaces—affects the likelihood of high-value bicycles being targeted. This effort is differentiated from existing research by its comprehensive consideration of various factors such as the time of day, the brand and color of the bike, and seasonal variations. This approach is not only driven by a commitment to community safety and the promotion of cycling but also by the need to uncover specific patterns and contexts of bicycle theft that remain underexplored in the literature <span class="citation" data-cites="mburu2016environmental">(<a href="#ref-mburu2016environmental" role="doc-biblioref">Mburu and Helbich 2016</a>)</span>.</p>
+<p>Central to this study is the hypothesis that the interplay between the location of theft and these nuanced variables significantly influences theft outcomes. Unlike previous studies, which may have focused broadly on theft incidents or on singular aspects such as the effectiveness of prevention strategies or the impact of environmental factors, this research delves into the granular details of how and why certain bicycles are more likely to be stolen in specific settings <span class="citation" data-cites="levy2018case">(<a href="#ref-levy2018case" role="doc-biblioref">Levy, Irvin-Erickson, and La Vigne 2018</a>)</span>. By integrating a mixed-method analysis that combines quantitative theft data with qualitative insights from cyclists and law enforcement, this study aims to provide a multidimensional view of bicycle theft dynamics.</p>
+<p>The selected variables—ranging from temporal factors like time and season to the intrinsic features of the bicycles such as brand popularity and color—were inspired by a gap identified in the literature <span class="citation" data-cites="salvanelli2019predicting">(<a href="#ref-salvanelli2019predicting" role="doc-biblioref">Salvanelli 2019</a>)</span>. These choices are aimed at enhancing the dataset to focus specifically on urban theft incidents, thus offering a richer, more detailed exploration than previously available. The outcomes of this research seek not only to add to the academic discourse by identifying new patterns and preventive measures but also to offer practical recommendations for urban planning and community efforts aimed at minimizing theft-related losses.</p>
+<p>By filling this critical research void, the findings of this study are anticipated to inform targeted interventions, enriching the strategies employed by urban planners and cycling advocates to safeguard bicycles. In doing so, this research stands as a pioneering effort to explore the multifaceted nature of urban bicycle theft, providing a solid foundation for future studies while contributing actionable insights toward the creation of safer, more bike-friendly urban environments.</p>
+<p>The structure of this paper is organized as follows: <a href="#sec-data">Section&nbsp;2</a> introduces the data used for analysis, including visualizations of the variables of interest; <a href="#sec-model">Section&nbsp;3</a> presents the logistic regression model combined with lasso used to explore the relationships between bicycle theft variables; <a href="#sec-results">Section&nbsp;5</a> displays the interpretations of the model alongside other findings; and <a href="#sec-discussion">Section&nbsp;6</a> provides a discussion on the implications of the findings, the limitations of this study, and its next steps for further research on this topic.</p>
+<p>Programming scripts and data are available at: https://github.com/liuziy23/torontobiketheftanalysis.</p>
+</section>
+<section id="sec-data" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Data</h1>
+<section id="sec-variables-of-interest" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="sec-variables-of-interest"><span class="header-section-number">2.1</span> Data Source</h2>
+<p>The data utilized in this study focuses on urban bicycle thefts, accessible through the open database provided by the Toronto Police Service, available at: Toronto Police Service - Bicycle Thefts <span class="citation" data-cites="citebiketheft">(<a href="#ref-citebiketheft" role="doc-biblioref"><span>“Toronto Police Service Bicycle Thefts Data,”</span> n.d.</a>)</span>. The database contains detailed records of reported bicycle thefts in Toronto, covering various aspects including the time, location, type of premises, bike make, and color, among other factors. The open-source nature of this dataset allows for free public access, supporting research and community awareness efforts regarding bicycle theft.</p>
+<p>The primary entities of this dataset include the theft incident, which is characterized by specific details such as the type of bicycle, the circumstances of the theft, and the outcome if known. Additional elements captured in the dataset include the make and color of the bicycle, the location of the theft, and the date and time it occurred, along with identifiers for each unique incident.</p>
+<p>The data collection process involves reports typically filed by the victims of theft, complemented by police reports and possibly eyewitness accounts. The primary method of data accumulation is incident reporting, which, unlike convenience sampling, may not uniformly cover all demographic or geographic areas but provides real, specific case studies of theft. This method has the advantage of detailing actual events and conditions under which bicycle thefts occur, offering practical insights into patterns and preventive measures.</p>
+<p>Data from these reports is instrumental in understanding the dynamics of urban bicycle theft, particularly the effectiveness of various security measures and the impact of environmental factors on the likelihood of theft. These reports are crucial in providing comprehensive assessments of theft incidents during all times of the year, reflecting the ongoing challenge of securing bicycles in a major urban area. The dataset is enriched with details on the location and timing of thefts, which are critical for analyzing trends and developing strategies to mitigate these incidents in the community.</p>
+<p>The analysis presented in this paper utilizes the R programming language <span class="citation" data-cites="citeR">(<a href="#ref-citeR" role="doc-biblioref">R Core Team 2020</a>)</span> for performing statistical computations and data visualization. Essential packages from the tidyverse <span class="citation" data-cites="citetidyverse">(<a href="#ref-citetidyverse" role="doc-biblioref">Wickham et al. 2019</a>)</span> are employed, including dplyr <span class="citation" data-cites="citedplyr">(<a href="#ref-citedplyr" role="doc-biblioref">Wickham et al. 2023</a>)</span> for data manipulation and cleaning, readr <span class="citation" data-cites="citereadr">(<a href="#ref-citereadr" role="doc-biblioref">Wickham, Hester, and Bryan 2023</a>)</span> for data importation, here <span class="citation" data-cites="citehere">(<a href="#ref-citehere" role="doc-biblioref">Müller 2020</a>)</span> for specifying file paths, ggplot2 <span class="citation" data-cites="citeggplot2">(<a href="#ref-citeggplot2" role="doc-biblioref">Wickham 2016</a>)</span> for generating data visualizations, gridExtra <span class="citation" data-cites="citegridExtra">(<a href="#ref-citegridExtra" role="doc-biblioref">Auguie 2017</a>)</span> for arranging visualizations, knitr <span class="citation" data-cites="citeknitr">(<a href="#ref-citeknitr" role="doc-biblioref">Xie 2014</a>)</span> for formatting output tables, and modelsummary <span class="citation" data-cites="citemodelsummary">(<a href="#ref-citemodelsummary" role="doc-biblioref">Arel-Bundock 2022</a>)</span> for producing summary tables. Additionally, the glmnet package <span class="citation" data-cites="citeglmnet">(<a href="#ref-citeglmnet" role="doc-biblioref">Tay, Narasimhan, and Hastie 2023</a>)</span> is used for regularization techniques and model fitting, the car package <span class="citation" data-cites="citecar">(<a href="#ref-citecar" role="doc-biblioref">Fox and Weisberg 2019</a>)</span> provides advanced data handling and statistical tests to including assessing multicollinearity, and the pROC package <span class="citation" data-cites="citepROC">(<a href="#ref-citepROC" role="doc-biblioref">Robin et al. 2011</a>)</span> provides tools for calculating measures from logistic regression models.</p>
+</section>
+<section id="variables-of-interest" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="variables-of-interest"><span class="header-section-number">2.2</span> Variables of Interest</h2>
+<p>Our analysis specifically focuses on the incidence of bicycle thefts. In this paper, we utilize a dataset exclusively dedicated to bike thefts, which contains 32,874 observations, where each row corresponds to a reported theft incident and each column represents a distinct variable, such as demographic details or the circumstances surrounding the theft <span class="citation" data-cites="citebiketheft">(<a href="#ref-citebiketheft" role="doc-biblioref"><span>“Toronto Police Service Bicycle Thefts Data,”</span> n.d.</a>)</span>. This dataset enables us to explore a variety of factors including the type of location where the theft occurred, the brand of the bicycle, the time and month of the theft, the color of the bicycle, and the value of the bicycle. It is noteworthy that the 32,874 records in our dataset cover a wide range of theft incidents, allowing for a comprehensive analysis of trends and patterns.</p>
+<p>Variables included in the analysis are:</p>
+<ul>
+<li><p>Location Type: Main exposure variable, distinguishes theft location as public or private; included as a predictor.</p></li>
+<li><p>Bike Make: Brand of bicycle, used to explore brand’s impact on theft likelihood; included as a predictor.</p></li>
+<li><p>Occurrence Hour: Time of theft, used to identify high-risk hours; included as a predictor.</p></li>
+<li><p>Occurrence Month: Month of theft, used to analyze seasonal theft patterns; included as a predictor.</p></li>
+<li><p>Bike Colour: Assesses if color influences theft risk; included as a predictor.</p></li>
+<li><p>Bike Value: Binary response variable; categorized as high value (over $1000) or not.</p></li>
+</ul>
+<div style="page-break-after: always;"></div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-1" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="paper_files/figure-html/fig-1-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;1: Distribution of location type, hour of the day, bike colour, and bike value.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-2" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="paper_files/figure-html/fig-2-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;2: Distribution of bike make and theft-occurrence month.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>In this paper, we present detailed visualizations of the distributions of the variables under study, specifically in <a href="#fig-1">Figure&nbsp;1</a> and <a href="#fig-2">Figure&nbsp;2</a>. These figures are instrumental in highlighting the diverse structures and forms that characterize each variable’s distribution. <a href="#fig-1">Figure&nbsp;1</a> focuses on the distribution of theft occurrences by time of day and month, revealing potential patterns that suggest higher theft risks during specific hours and seasonal peaks. For instance, the visualization may show increased thefts during late evening hours and in warmer months, indicating a need for heightened security measures during these times. <a href="#fig-2">Figure&nbsp;2</a>, on the other hand, examines the distributions of the bike’s make, color, and value. This figure provides insights into which bicycle brands are more frequently targeted by thieves, which colors are most susceptible to theft, and the prevalence of high-value bicycles in theft incidents. For example, a concentration of thefts involving high-value bikes in certain colors could suggest specific market preferences among thieves.</p>
+<p>These visualizations not only aid in understanding the raw data but also serve as a foundation for the subsequent statistical modeling phase. The varied structures observed in the data distributions—ranging from skewed distributions for bike values to categorical distinctions in bike make and color—will be carefully accounted for in our modeling strategies. These efforts are aimed at developing a comprehensive understanding of the factors influencing bicycle theft, which in turn can inform targeted interventions to reduce such incidents. By meticulously analyzing the distribution and influence of each variable, we enhance the predictive power of our models, thereby contributing valuable insights into effective theft prevention strategies.</p>
+<div style="page-break-after: always;"></div>
+<p>Understanding when bike thefts occur helps target prevention efforts. Seasonal and hourly trends indicate times of higher theft risk, guiding strategic security planning and resource allocation.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-month" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;1: Summary statistics table of occurrence month.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">OCC_MONTH</th>
+<th style="text-align: right;">Frequency</th>
+<th style="text-align: right;">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">July</td>
+<td style="text-align: right;">5104</td>
+<td style="text-align: right;">15.53</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">August</td>
+<td style="text-align: right;">4727</td>
+<td style="text-align: right;">14.38</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">June</td>
+<td style="text-align: right;">4420</td>
+<td style="text-align: right;">13.45</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">September</td>
+<td style="text-align: right;">4176</td>
+<td style="text-align: right;">12.70</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">May</td>
+<td style="text-align: right;">3354</td>
+<td style="text-align: right;">10.20</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">October</td>
+<td style="text-align: right;">3219</td>
+<td style="text-align: right;">9.79</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">April</td>
+<td style="text-align: right;">1976</td>
+<td style="text-align: right;">6.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">November</td>
+<td style="text-align: right;">1855</td>
+<td style="text-align: right;">5.64</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">March</td>
+<td style="text-align: right;">1276</td>
+<td style="text-align: right;">3.88</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">December</td>
+<td style="text-align: right;">1038</td>
+<td style="text-align: right;">3.16</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">January</td>
+<td style="text-align: right;">898</td>
+<td style="text-align: right;">2.73</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">February</td>
+<td style="text-align: right;">831</td>
+<td style="text-align: right;">2.53</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The categorical summary of bike theft occurrences across various months, as presented in <a href="#tbl-month">Table&nbsp;1</a> The table captures 32,874 instances of reported bike thefts, with each month revealing a distinct pattern of frequency. Notably, July stands out as the month with the highest theft incidents, constituting approximately 15.52% of the total cases. This is closely followed by August and June, with 14.38% and 13.44% respectively, indicating a trend of increased thefts during the summer months. Conversely, the winter months—specifically February and January—show a marked decrease in theft frequency, accounting for only 2.53% and 2.73% of the incidents. Within the table, the ‘Frequency’ column enumerates the actual count of thefts per month, while the ‘Percentage’ column elucidates the proportion of total thefts that occurred in each month. This distribution highlights a clear seasonal pattern, with more than 40 percent of thefts taking place during the warmer months of July through September, and the fewest thefts occurring in the cold of December through February.</p>
+<div style="page-break-after: always;"></div>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-hour" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;2: Summary statistics table of occurrence hour</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;">OCC_HOUR</th>
+<th style="text-align: right;">Frequency</th>
+<th style="text-align: right;">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">2316</td>
+<td style="text-align: right;">7.05</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">2132</td>
+<td style="text-align: right;">6.49</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">1976</td>
+<td style="text-align: right;">6.01</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">1867</td>
+<td style="text-align: right;">5.68</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1818</td>
+<td style="text-align: right;">5.53</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: right;">1800</td>
+<td style="text-align: right;">5.48</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">1784</td>
+<td style="text-align: right;">5.43</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">1744</td>
+<td style="text-align: right;">5.31</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">1674</td>
+<td style="text-align: right;">5.09</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">1592</td>
+<td style="text-align: right;">4.84</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">1540</td>
+<td style="text-align: right;">4.68</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">1500</td>
+<td style="text-align: right;">4.56</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">1491</td>
+<td style="text-align: right;">4.54</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">1469</td>
+<td style="text-align: right;">4.47</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">1465</td>
+<td style="text-align: right;">4.46</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">1325</td>
+<td style="text-align: right;">4.03</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">1259</td>
+<td style="text-align: right;">3.83</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">898</td>
+<td style="text-align: right;">2.73</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">761</td>
+<td style="text-align: right;">2.31</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">612</td>
+<td style="text-align: right;">1.86</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">547</td>
+<td style="text-align: right;">1.66</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">517</td>
+<td style="text-align: right;">1.57</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">395</td>
+<td style="text-align: right;">1.20</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">392</td>
+<td style="text-align: right;">1.19</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The comprehensive summary of bike theft occurrences delineated by hour, as depicted in <a href="#tbl-hour">Table&nbsp;2</a>, outlines the frequency and percentage of thefts at various times throughout a 24-hour period, based on 32,874 reported incidents. The hour with the highest frequency of thefts is 18:00 (or 6 PM), representing 7.05% of total incidents, suggesting an elevated risk of theft during early evening hours. This is followed by hours 17:00 (6.49%) and 12:00 (6.01%), indicative of heightened theft activity in late afternoon and midday, respectively. In stark contrast, the early hours of the morning—specifically 01:00 and 05:00—show significantly fewer occurrences, with the lowest being at 5 AM, constituting only 0.11% of thefts. The ‘Frequency’ column in the table provides the precise count of thefts at each hour, while the ‘Percentage’ column offers insight into the share of total thefts happening at each corresponding hour. The data elucidates a pronounced pattern of theft risk that peaks during evening hours and diminishes substantially in the early morning, demonstrating the temporal trends in bicycle theft incidents.</p>
+</section>
+</section>
+<section id="sec-model" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Model</h1>
+<section id="model-methods---variable-selection" class="level2" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="model-methods---variable-selection"><span class="header-section-number">3.1</span> Model Methods - Variable Selection</h2>
+<p>In our study to discern the determinants of high-value bicycle theft, we utilize a methodological framework that combines Lasso logistic regression with cross-validation. Logistic regression is particularly suited for our study as it excels in modeling binary outcomes—such as classifying bicycle theft incidents as high-value or not. Its ability to provide probabilities along with odds ratios for the occurrence of an event based on various predictors makes it a useful tool in understanding the likelihood of high-value thefts. This approach allows us to directly link the characteristics of bicycles and their environment to the risk of being targeted by thieves, offering insights that are both statistically significant and practically interpretable.</p>
+<p>The inclusion of Lasso (Least Absolute Shrinkage and Selection Operator) in the logistic regression model addresses the critical need for variable selection in the presence of potentially numerous predictors. Urban crime data often come with the challenge of high dimensionality—many variables like time, location, bike brand, and seasonality could potentially influence theft risk. Lasso aids in simplifying this complexity by penalizing the less significant variables’ coefficients, effectively shrinking them to zero. This not only helps in identifying the most impactful predictors but also in mitigating the risk of overfitting, thereby enhancing the model’s predictive accuracy and interpretability.</p>
+<p>Conclusions are derived from the logistic regression analysis post-Lasso variable selection, focusing on the retained variables and their odds ratios. These odds ratios quantify the strength and direction of the association between each predictor and the likelihood of a bicycle theft being high-value. The statistical significance of these associations, along with their practical implications, guides our understanding of high-value bicycle theft dynamics.</p>
+</section>
+</section>
+<section id="model-methods---model-diagnostics-and-validation" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Model Methods - Model Diagnostics and Validation</h1>
+<p>Model diagnostics comprises assessing the Variance Inflation Factor (VIF) and the Receiver Operating Characteristic (ROC) curve with the Area Under the Curve (AUC) metric. Post-Lasso variable selection, VIF is used to detect multicollinearity among predictors. A VIF above 5 indicates problematic multicollinearity, potentially distorting the model’s coefficients. Addressing this might involve dropping correlated predictors to improve model stability and interpretability. The ROC curve, plotted by comparing true positive rates against false positive rates at various thresholds, alongside the AUC metric (area under the ROC curve), evaluates the model’s ability to distinguish between binary outcomes effectively. An AUC close to 1 signifies excellent model performance, while values near 0.5 suggest no predictive benefit over random chance. An AUC over 0.6 will be deemed as adequately well model performance. These diagnostics ensure our model’s robustness by mitigating multicollinearity and verifying its predictive accuracy.</p>
+<p>Model validation is conducted via cross-validation. Cross-validation is integral to our methodology, serving the dual purpose of validation and optimization. By partitioning the data into numerous sets and iteratively using each set as a validation while training on the others, we ascertain the model’s performance across different subsets of data. This process is key to determining the optimal lambda <span class="math inline">\(\lambda\)</span>, the regularization parameter in Lasso that influences the degree of shrinkage applied to the coefficients. The optimal lambda is the one that minimizes the cross-validated error, striking a balance between the model’s complexity and its ability to generalize to new data.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="sec-results" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Results</h1>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-modelsum" class="anchored">
+
+ 
+
+  
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tinytable_of8lme9y5eql63rl1kck</title>
+    <style>
+.table td.tinytable_css_tehb83cwcks2ma2cr2d3, .table th.tinytable_css_tehb83cwcks2ma2cr2d3 {    border-bottom: solid 0.1em #d3d8dc; }
+.table td.tinytable_css_ebbcifrfwyc96slh42cl, .table th.tinytable_css_ebbcifrfwyc96slh42cl {    text-align: left; }
+.table td.tinytable_css_wuwr406utzmu7vy2nlyq, .table th.tinytable_css_wuwr406utzmu7vy2nlyq {    text-align: center; }
+.table td.tinytable_css_dlvsm5bzusm8g2hws440, .table th.tinytable_css_dlvsm5bzusm8g2hws440 {    border-bottom: solid 0.05em black; }
+    </style>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+    </script>
+  
+
+  
+    <div class="container">
+      <table class="table table-borderless" id="tinytable_of8lme9y5eql63rl1kck" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true"><caption>Table&nbsp;3:  <p>Model summary of the fitted logistic regression model (Model 1) on
+bicycle theft being of high value.</p> </caption>
+        <thead>
+        
+              <tr>
+                <th scope="col"> </th>
+                <th scope="col">(1)</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td>(Intercept)          </td>
+                  <td>0.531     </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.017)   </td>
+                </tr>
+                <tr>
+                  <td>locationoutside      </td>
+                  <td>-0.062    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.005)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKECC          </td>
+                  <td>-0.448    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.022)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEGI          </td>
+                  <td>-0.220    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.019)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEGIANT       </td>
+                  <td>-0.140    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.023)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKENO          </td>
+                  <td>-0.304    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.021)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEOT          </td>
+                  <td>-0.184    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.017)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEOther       </td>
+                  <td>-0.150    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.017)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEOTHER       </td>
+                  <td>-0.049    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.020)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKERA          </td>
+                  <td>-0.367    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.024)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKESC          </td>
+                  <td>-0.429    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.023)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKESPECIALIZED </td>
+                  <td>0.094     </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.024)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKESU          </td>
+                  <td>-0.439    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.023)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKETR          </td>
+                  <td>-0.214    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.019)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKETREK        </td>
+                  <td>-0.067    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.024)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEUK          </td>
+                  <td>-0.235    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.018)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_MAKEUNKNOWN MAKE</td>
+                  <td>-0.170    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.024)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOURBLU       </td>
+                  <td>-0.090    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.009)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOURGRY       </td>
+                  <td>-0.060    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.009)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOUROther     </td>
+                  <td>-0.050    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.006)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOURRED       </td>
+                  <td>-0.030    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.010)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOURSIL       </td>
+                  <td>-0.078    </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.012)   </td>
+                </tr>
+                <tr>
+                  <td>BIKE_COLOURWHI       </td>
+                  <td>0.018     </td>
+                </tr>
+                <tr>
+                  <td>                     </td>
+                  <td>(0.010)   </td>
+                </tr>
+                <tr>
+                  <td>Num.Obs.             </td>
+                  <td>32874     </td>
+                </tr>
+                <tr>
+                  <td>R2                   </td>
+                  <td>-11.123   </td>
+                </tr>
+                <tr>
+                  <td>AIC                  </td>
+                  <td>37782.7   </td>
+                </tr>
+                <tr>
+                  <td>BIC                  </td>
+                  <td>37984.3   </td>
+                </tr>
+                <tr>
+                  <td>Log.Lik.             </td>
+                  <td>-18867.328</td>
+                </tr>
+                <tr>
+                  <td>RMSE                 </td>
+                  <td>0.43      </td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <script>
+      function styleCell_tinytable_ev4j01qcg4uov2qf2cyi(i, j, css_id) {
+        var table = document.getElementById("tinytable_of8lme9y5eql63rl1kck");
+        table.rows[i].cells[j].classList.add(css_id);
+      }
+      function insertSpanRow(i, colspan, content) {
+        var table = document.getElementById('tinytable_of8lme9y5eql63rl1kck');
+        var newRow = table.insertRow(i);
+        var newCell = newRow.insertCell(0);
+        newCell.setAttribute("colspan", colspan);
+        // newCell.innerText = content;
+        // this may be unsafe, but innerText does not interpret <br>
+        newCell.innerHTML = content;
+      }
+      function spanCell_tinytable_ev4j01qcg4uov2qf2cyi(i, j, rowspan, colspan) {
+        var table = document.getElementById("tinytable_of8lme9y5eql63rl1kck");
+        const targetRow = table.rows[i];
+        const targetCell = targetRow.cells[j];
+        for (let r = 0; r < rowspan; r++) {
+          // Only start deleting cells to the right for the first row (r == 0)
+          if (r === 0) {
+            // Delete cells to the right of the target cell in the first row
+            for (let c = colspan - 1; c > 0; c--) {
+              if (table.rows[i + r].cells[j + c]) {
+                table.rows[i + r].deleteCell(j + c);
+              }
+            }
+          }
+          // For rows below the first, delete starting from the target column
+          if (r > 0) {
+            for (let c = colspan - 1; c >= 0; c--) {
+              if (table.rows[i + r] && table.rows[i + r].cells[j]) {
+                table.rows[i + r].deleteCell(j);
+              }
+            }
+          }
+        }
+        // Set rowspan and colspan of the target cell
+        targetCell.rowSpan = rowspan;
+        targetCell.colSpan = colspan;
+      }
+
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(0, 0, 'tinytable_css_tehb83cwcks2ma2cr2d3') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(0, 1, 'tinytable_css_tehb83cwcks2ma2cr2d3') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(0, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(1, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(2, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(3, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(4, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(5, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(6, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(7, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(8, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(9, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(10, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(11, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(12, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(13, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(14, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(15, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(16, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(17, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(18, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(19, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(20, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(21, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(22, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(23, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(24, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(25, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(26, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(27, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(28, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(29, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(30, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(31, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(32, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(33, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(34, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(35, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(36, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(37, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(38, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(39, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(40, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(41, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(42, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(43, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(44, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(45, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(46, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(47, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(48, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(49, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(50, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(51, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(52, 0, 'tinytable_css_ebbcifrfwyc96slh42cl') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(0, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(1, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(2, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(3, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(4, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(5, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(6, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(7, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(8, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(9, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(10, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(11, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(12, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(13, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(14, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(15, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(16, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(17, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(18, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(19, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(20, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(21, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(22, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(23, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(24, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(25, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(26, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(27, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(28, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(29, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(30, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(31, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(32, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(33, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(34, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(35, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(36, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(37, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(38, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(39, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(40, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(41, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(42, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(43, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(44, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(45, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(46, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(47, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(48, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(49, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(50, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(51, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(52, 1, 'tinytable_css_wuwr406utzmu7vy2nlyq') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(46, 0, 'tinytable_css_dlvsm5bzusm8g2hws440') })
+window.addEventListener('load', function () { styleCell_tinytable_ev4j01qcg4uov2qf2cyi(46, 1, 'tinytable_css_dlvsm5bzusm8g2hws440') })
+    </script>
+
+  
+
+
+</div>
+</div>
+</div>
+<p>The final model, referred as Model 1, is then a logistic regression model with bike theft being high value or not as the response variable and predictors being bike make, bike color, and location of theft. <a href="#tbl-modelsum">Table&nbsp;3</a> showcases the coefficients of the predictor variables of Model 1. We focus on the upper section of this table, which includes the intercept coefficient and the coefficient representing the log odds of a stolen bike being of high value, and examines how they vary with different predictors. The standard errors of the estimated regression coefficients are displayed in brackets for reference.</p>
+<p>We see location of theft, make of bike and colour of bike are statistically significant at 5%. Significant coefficients greater than 0 indicates being associated with more likely to be stolen while less than 0 is associated with less likely to be stolen. Bikes parked outside are less likely to be stolen. All bike makes are less likely to be stolen than bike make of “CA”, except for “specialized” makes which are more likely to be stolen than “CA” bikes. All bike colours are less likely to be stolen than black bikes, except for white bikes which are equally likely to be stolen than black bikes.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-roc" class="quarto-figure quarto-figure-center anchored">
+<figure class="figure">
+<p><img src="paper_files/figure-html/fig-roc-1.png" class="img-fluid figure-img" width="672"></p>
+<figcaption class="figure-caption">Figure&nbsp;3: ROC and AUC of the fitted logistic regression model on bicycle theft being of high value.</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-roc">Figure&nbsp;3</a> shows the ROC curve and the AUC. The AUC is 0.647, which means the model has adequate prediction accuracy.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="tbl-vif" class="anchored">
+<table class="table table-sm table-striped small">
+<caption>Table&nbsp;4: VIFs of the fitted logistic regression model (Model 1) on bicycle theft being of high value.</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Predictor</th>
+<th style="text-align: right;">VIF</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">location</td>
+<td style="text-align: right;">1.02</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BIKE_MAKE</td>
+<td style="text-align: right;">1.08</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BIKE_COLOUR</td>
+<td style="text-align: right;">1.06</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<p>The predictors in the model all have a VIF less than 2 and being very close to 1, as shown in <a href="#tbl-vif">Table&nbsp;4</a>, indicating lack of multicollinearity in the model.</p>
+<div style="page-break-after: always;"></div>
+</section>
+<section id="sec-discussion" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Discussion</h1>
+<section id="sec-first-point" class="level2" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="sec-first-point"><span class="header-section-number">6.1</span> Understanding the complexities of bicycle theft reveals insights into theft patterns and risk factors</h2>
+<p>The final logistic regression model delves into the intricacies of factors influencing bicycle theft likelihood, particularly focusing on the value aspect—whether a bike is classified as high-value or not. Notably, the model highlights the significance of the theft location, with bikes parked outside showing a coefficient less than 0. This suggests that bicycles parked outside are less likely to be categorized as high-value thefts compared to those parked in unspecified default locations, potentially indicating more secure or private areas. Moreover, the analysis uncovers an intriguing insight regarding bike make, where all makes are generally less likely to be stolen than “CA” bikes, except for the “Specialized” brand, which stands out with a positive coefficient. This implies that “Specialized” bikes, renowned for their quality and potentially higher resale value, are more appealing to thieves, underscoring the impact of brand perception on theft risk. Similarly, the examination of bike color reveals that all colors, except white, are less likely to be associated with high-value thefts compared to black bikes. The equal likelihood of white bikes being stolen as black bikes may reflect a specific preference or market demand among thieves for these colors, possibly due to their visibility or resale value. Overall, the model unravels the intricate interplay between theft location, bike make, and bike color in determining the likelihood of a bicycle being a high-value theft target, emphasizing the crucial role of external factors in theft likelihood. This analysis directly addresses our research question by identifying specific characteristics that render a bicycle more susceptible to theft, advocating for tailored theft prevention strategies to mitigate high-value bicycle thefts.</p>
+</section>
+<section id="sec-second-point" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="sec-second-point"><span class="header-section-number">6.2</span> Investigating the temporal trends of bicycle thefts provides actionable insights for theft prevention efforts</h2>
+<p>Analyzing the occurrence month and hour of bicycle thefts uncovers significant temporal patterns that inform strategic theft prevention measures. The analysis reveals distinct seasonal trends, with thefts peaking during summer months and diminishing during winter months. This seasonal variation highlights the importance of adapting theft prevention strategies to coincide with periods of heightened theft activity, such as increasing patrols and security measures during peak theft seasons. Additionally, examining theft occurrences by hour exposes specific times of day when thefts are most prevalent, guiding the allocation of resources for targeted surveillance and intervention. By understanding these temporal patterns, stakeholders can implement proactive measures to deter thefts effectively and enhance the security of bike owners and urban areas.</p>
+</section>
+<section id="sec-third-point" class="level2" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="sec-third-point"><span class="header-section-number">6.3</span> Understanding the socio-economic and environmental factors contributing to bicycle thefts informs holistic prevention strategies</h2>
+<p>Bicycle theft is influenced by a multitude of socio-economic and environmental factors, necessitating a comprehensive approach to theft prevention. Factors such as income inequality, access to secure parking facilities, and urban infrastructure play pivotal roles in theft occurrence. Targeted interventions addressing these underlying factors, such as improving bike parking infrastructure and implementing community policing initiatives in high-theft areas, can mitigate theft risk and enhance overall urban security. Moreover, public awareness campaigns and community engagement initiatives can foster a culture of collective responsibility and vigilance, encouraging active participation in theft prevention efforts. By addressing the root causes of bicycle thefts and promoting collaborative strategies, communities can create safer environments for cyclists and reduce the prevalence of bike thefts.</p>
+</section>
+<section id="sec-limitations-next-steps" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="sec-limitations-next-steps"><span class="header-section-number">6.4</span> Limitations &amp; Next Steps</h2>
+<section id="sec-limitations" class="level3" data-number="6.4.1">
+<h3 data-number="6.4.1" class="anchored" data-anchor-id="sec-limitations"><span class="header-section-number">6.4.1</span> Limitations</h3>
+<p>The final logistic regression model, while offering valuable insights into the determinants of high-value bicycle theft, is not without its limitations. A notable concern is the Area Under the Curve (AUC) of the Receiver Operating Characteristic (ROC) curve, which stands at 0.647. This metric, while indicating some ability of the model to distinguish between high-value and lower-value thefts, suggests moderate predictive accuracy. The AUC value, being substantially closer to 0.5 than to 1, implies that the model’s capacity to correctly classify high-value thefts based on the predictors—bike make, bike color, and location of theft—is limited. This moderate AUC value potentially impacts the usefulness of the model in practical settings. For stakeholders, such as urban planners and law enforcement agencies, looking to deploy targeted interventions based on the model’s predictions, there is a risk that the strategies might not be as effective as hoped in preventing high-value bicycle thefts. The model’s moderate discriminative power could lead to misclassification of theft risks, affecting the allocation of resources and the design of prevention measures.</p>
+<p>Several factors contribute to the model’s AUC limitation, which could not be entirely corrected within the scope of this analysis. First, the complexity of human behavior, especially in the context of theft, is challenging to capture fully through available data on bike make, color, and location alone. The interactions between these variables and unmeasured factors, such as the presence of security devices or surveillance, could significantly influence theft likelihood but are not accounted for in the model. Second, data quality and completeness could also play a role. Missing or inaccurately reported incidents of theft might skew the relationship between predictors and the response, affecting the model’s accuracy.</p>
+</section>
+<section id="sec-next-steps" class="level3" data-number="6.4.2">
+<h3 data-number="6.4.2" class="anchored" data-anchor-id="sec-next-steps"><span class="header-section-number">6.4.2</span> Next Steps</h3>
+<p>Despite these limitations, the model provides a foundation for understanding high-value bicycle theft’s dynamics. It highlights significant risk factors that can inform preliminary guidelines for theft prevention. Future research could aim to enhance model accuracy by incorporating additional predictors, such as time of day or security measures, and employing more sophisticated modeling techniques that can better handle the complexities inherent in predicting theft incidents. This iterative approach, building on the current model’s insights, promises to refine our understanding and strategies for mitigating high-value bicycle thefts.</p>
+<div style="page-break-after: always;"></div>
+</section>
+</section>
+</section>
+<section id="sec-references" class="level1 unnumbered" data-number="7">
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">7 References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-citemodelsummary" class="csl-entry" role="listitem">
+Arel-Bundock, Vincent. 2022. <span>“<span class="nocase">modelsummary</span>: Data and Model Summaries in <span>R</span>.”</span> <em>Journal of Statistical Software</em> 103 (1): 1–23. <a href="https://doi.org/10.18637/jss.v103.i01">https://doi.org/10.18637/jss.v103.i01</a>.
+</div>
+<div id="ref-citegridExtra" class="csl-entry" role="listitem">
+Auguie, Baptiste. 2017. <em>gridExtra: Miscellaneous Functions for "Grid" Graphics</em>. <a href="https://CRAN.R-project.org/package=gridExtra">https://CRAN.R-project.org/package=gridExtra</a>.
+</div>
+<div id="ref-citecar" class="csl-entry" role="listitem">
+Fox, John, and Sanford Weisberg. 2019. <em>An <span>R</span> Companion to Applied Regression</em>. Third. Thousand Oaks <span>CA</span>: Sage. <a href="https://socialsciences.mcmaster.ca/jfox/Books/Companion/">https://socialsciences.mcmaster.ca/jfox/Books/Companion/</a>.
+</div>
+<div id="ref-levy2018case" class="csl-entry" role="listitem">
+Levy, Jeremy M, Yasemin Irvin-Erickson, and Nancy La Vigne. 2018. <span>“A Case Study of Bicycle Theft on the Washington DC Metrorail System Using a Routine Activities and Crime Pattern Theory Framework.”</span> <em>Security Journal</em> 31: 226–46.
+</div>
+<div id="ref-mburu2016environmental" class="csl-entry" role="listitem">
+Mburu, Lucy Waruguru, and Marco Helbich. 2016. <span>“Environmental Risk Factors Influencing Bicycle Theft: A Spatial Analysis in London, UK.”</span> <em>PLoS One</em> 11 (9): e0163354.
+</div>
+<div id="ref-citehere" class="csl-entry" role="listitem">
+Müller, Kirill. 2020. <em>Here: A Simpler Way to Find Your Files</em>. <a href="https://CRAN.R-project.org/package=here">https://CRAN.R-project.org/package=here</a>.
+</div>
+<div id="ref-citeR" class="csl-entry" role="listitem">
+R Core Team. 2020. <em>R: A Language and Environment for Statistical Computing</em>. Vienna, Austria: R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a>.
+</div>
+<div id="ref-citepROC" class="csl-entry" role="listitem">
+Robin, Xavier, Natacha Turck, Alexandre Hainard, Natalia Tiberti, Frédérique Lisacek, Jean-Charles Sanchez, and Markus Müller. 2011. <span>“pROC: An Open-Source Package for r and s+ to Analyze and Compare ROC Curves.”</span> <em>BMC Bioinformatics</em> 12: 77.
+</div>
+<div id="ref-salvanelli2019predicting" class="csl-entry" role="listitem">
+Salvanelli, Giacomo. 2019. <span>“Predicting Bicycle Theft in Milan (IT) an Aoristic Analysis.”</span> <em>Journal of Science and Cycling</em> 8 (3): 18–24.
+</div>
+<div id="ref-citeglmnet" class="csl-entry" role="listitem">
+Tay, J. Kenneth, Balasubramanian Narasimhan, and Trevor Hastie. 2023. <span>“Elastic Net Regularization Paths for All Generalized Linear Models.”</span> <em>Journal of Statistical Software</em> 106 (1): 1–31. <a href="https://doi.org/10.18637/jss.v106.i01">https://doi.org/10.18637/jss.v106.i01</a>.
+</div>
+<div id="ref-citebiketheft" class="csl-entry" role="listitem">
+<span>“Toronto Police Service Bicycle Thefts Data.”</span> n.d. <a href="https://data.torontopolice.on.ca/pages/bicycle-thefts" class="uri">https://data.torontopolice.on.ca/pages/bicycle-thefts</a>.
+</div>
+<div id="ref-citeggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley. 2016. <em>Ggplot2: Elegant Graphics for Data Analysis</em>. Springer-Verlag New York. <a href="https://ggplot2.tidyverse.org">https://ggplot2.tidyverse.org</a>.
+</div>
+<div id="ref-citetidyverse" class="csl-entry" role="listitem">
+Wickham, Hadley, Mara Averick, Jennifer Bryan, Winston Chang, Lucy D’Agostino McGowan, Romain François, Garrett Grolemund, et al. 2019. <span>“Welcome to the <span class="nocase">tidyverse</span>.”</span> <em>Journal of Open Source Software</em> 4 (43): 1686. <a href="https://doi.org/10.21105/joss.01686">https://doi.org/10.21105/joss.01686</a>.
+</div>
+<div id="ref-citedplyr" class="csl-entry" role="listitem">
+Wickham, Hadley, Romain François, Lionel Henry, Kirill Müller, and Davis Vaughan. 2023. <em>Dplyr: A Grammar of Data Manipulation</em>. <a href="https://CRAN.R-project.org/package=dplyr">https://CRAN.R-project.org/package=dplyr</a>.
+</div>
+<div id="ref-citereadr" class="csl-entry" role="listitem">
+Wickham, Hadley, Jim Hester, and Jennifer Bryan. 2023. <em>Readr: Read Rectangular Text Data</em>. <a href="https://CRAN.R-project.org/package=readr">https://CRAN.R-project.org/package=readr</a>.
+</div>
+<div id="ref-citeknitr" class="csl-entry" role="listitem">
+Xie, Yihui. 2014. <span>“Knitr: A Comprehensive Tool for Reproducible Research in <span>R</span>.”</span> In <em>Implementing Reproducible Computational Research</em>, edited by Victoria Stodden, Friedrich Leisch, and Roger D. Peng. Chapman; Hall/CRC.
+</div>
+</div></section></div></main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
