@@ -205,7 +205,7 @@ The inclusion of Lasso (Least Absolute Shrinkage and Selection Operator) in the 
 
 Conclusions are derived from the logistic regression analysis post-Lasso variable selection, focusing on the retained variables and their odds ratios. These odds ratios quantify the strength and direction of the association between each predictor and the likelihood of a bicycle theft being high-value. The statistical significance of these associations, along with their practical implications, guides our understanding of high-value bicycle theft dynamics. 
 
-# Model Methods - Model Diagnostics and Validation
+## Model Methods - Model Diagnostics and Validation
 
 Model diagnostics comprises assessing the Variance Inflation Factor (VIF) and the Receiver Operating Characteristic (ROC) curve with the Area Under the Curve (AUC) metric. Post-Lasso variable selection, VIF is used to detect multicollinearity among predictors. A VIF above 5 indicates problematic multicollinearity, potentially distorting the model's coefficients. Addressing this might involve dropping correlated predictors to improve model stability and interpretability. The ROC curve, plotted by comparing true positive rates against false positive rates at various thresholds, alongside the AUC metric (area under the ROC curve), evaluates the model's ability to distinguish between binary outcomes effectively. An AUC close to 1 signifies excellent model performance, while values near 0.5 suggest no predictive benefit over random chance. An AUC over 0.6 will be deemed as adequately well model performance. These diagnostics ensure our model's robustness by mitigating multicollinearity and verifying its predictive accuracy.
 
@@ -220,7 +220,7 @@ Model validation is conducted via cross-validation. Cross-validation is integral
 #| tbl-cap: Model summary of the fitted logistic regression model (Model 1) on bicycle theft being of high value.
 #| echo: false
 
-modelsummary(logit_model)
+kable(summary(logit_model)$coefficients[,c(1,2,4)], digits=2)
 ```
 
 The final model, referred as Model 1, is then a logistic regression model with bike theft being high value or not as the response variable and predictors being bike make, bike color, and location of theft. @tbl-modelsum showcases the coefficients of the predictor variables of Model 1. We focus on the upper section of this table, which includes the intercept coefficient and the coefficient representing the log odds of a stolen bike being of high value, and examines how they vary with different predictors. The standard errors of the estimated regression coefficients are displayed in brackets for reference.
