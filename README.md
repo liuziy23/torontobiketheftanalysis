@@ -8,13 +8,13 @@ This repository contains a paper that investigates bike thefts in Toronto.
 
 This analysis requires RStudio and Quarto. To complete this project you will need to have both of these installed. 
 Following the download of your environment, you will need to download the packages associated with this project. These are:
-- tidyverse
-- knitr
-- here
-- modelsummary
-- gridExtra
-- car
-- pROC
+- `tidyverse`
+- `knitr`
+- `here`
+- `modelsummary`
+- `gridExtra`
+- `car`
+- `pROC`
 
 ## File Organization
 
